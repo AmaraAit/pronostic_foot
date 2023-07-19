@@ -77,5 +77,10 @@ public class FootControleur {
 		return footMetier.predict();
 	}
 	
+	@RequestMapping(value = "/predict1",method = RequestMethod.GET)
+	public String getPrediction1() throws Exception{
+		return footMetier.predict1();
+	}
+	
 
 }

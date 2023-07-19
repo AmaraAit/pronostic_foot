@@ -2,7 +2,7 @@ server:
   port: 8082
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/db_data
+    url: jdbc:mysql://localhost:3306/db_foot
     username: root
     password: 
     driverClassName: com.mysql.cj.jdbc.Driver

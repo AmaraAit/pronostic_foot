@@ -53,4 +53,8 @@ public interface MatchFootMetier {
 	
 	public String predict() throws Exception;
 
+
+
+	String predict1() throws Exception;
+
 }

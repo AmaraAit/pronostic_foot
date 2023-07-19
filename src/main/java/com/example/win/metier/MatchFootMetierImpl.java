@@ -14,6 +14,7 @@ import org.datavec.api.records.reader.RecordReader;
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.FileSplit;
 import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
+import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -64,7 +65,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 				"bundesliga","pays-bas","turquie",
 				"suisse","ligue-1"};
 		List<String> listlien=new ArrayList<>();
-		String[] annee= {"2014-2015.htm","2015-2016.htm","2016-2017.htm","2017-2018.htm","2018-2019.htm","2019-2020.htm","2020-2021.htm","2022-2023.htm"};
+		String[] annee= {"2012-2013.htm","2013-2014.htm","2014-2015.htm","2015-2016.htm","2016-2017.htm","2017-2018.htm","2018-2019.htm","2019-2020.htm","2020-2021.htm","2022-2023.htm"};
 		
 		
 		String []urls= {
@@ -338,7 +339,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	public List<MatchFoot> getMatchsByName(String name) {
 		List<MatchFoot> liste=footRepository.findAllMatchByNameUn(name);
 		List<MatchFoot> l=new ArrayList<>();
-		for (int i = 0; i < 15; i++) {
+		for (int i = 0; i < 10; i++) {
 			l.add(liste.get(i));
 		}
 		return l;
@@ -351,6 +352,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		List<MatchFoot> l=new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			l.add(listein.get(i));
+			l.add(listeout.get(i));
 		}
 		return l;
 	}
@@ -360,7 +362,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		List<MatchFoot> lin=footRepository.findAllMatchEncaisseDomByEquipe(name);
 		List<MatchFoot> lout=footRepository.findAllMatchEncaisseExtByEquipe(name);
 		List<MatchFoot> l = new ArrayList<>();
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 5; i++) {
 			l.add(lin.get(i));
 			l.add(lout.get(i));
 			
@@ -374,7 +376,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchMarqADom=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0) {
@@ -390,7 +392,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchMarqAEXT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
@@ -406,7 +408,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseADom=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
@@ -423,7 +425,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseAEXT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0) {
@@ -439,7 +441,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchmarqueADOMMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqUnMTUn()>0) {
@@ -455,7 +457,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchmarqueAEXTMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()>0) {
@@ -471,7 +473,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseADOMMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()>0) {
@@ -487,7 +489,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseAEXTMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>8) {
+			if(count>10) {
 				break;
 			}
 			if(m.getButEqUnMTUn()>0) {
@@ -531,12 +533,13 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	}
 	
 	@Override
-	public String predict() throws Exception{
+	public String predict1() throws Exception{
 		//saveData();
-		double learningRate=0.1;
+		double learningRate=0.001;
 		String a = null;
 		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.weightInit(WeightInit.XAVIER)
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.SIGMOID_UNIFORM)
 				.updater(new Adam(learningRate))
 				.list()
 				.layer(0,new DenseLayer.Builder()
@@ -545,8 +548,8 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
 						  .nIn(2)
 						  .nOut(2)
-						  .activation(Activation.SOFTMAX)
-						  .lossFunction(LossFunction.MEAN_SQUARED_LOGARITHMIC_ERROR)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.COSINE_PROXIMITY)
 						  .build()
 						  )
 						  
@@ -557,20 +560,107 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		
 		File fileTrain = null;
 		try {
-			fileTrain = new ClassPathResource("trainData.csv").getFile();
+			fileTrain = new ClassPathResource("trainData1.csv").getFile();
 			
 			RecordReader recordReaderTrain =new CSVRecordReader(0);
 			recordReaderTrain.initialize(new FileSplit(fileTrain));
 			
 			int batchSize=1;
 			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
-			int nEpocks=32;
+			int nEpocks=6;
 			for (int j=0;j<nEpocks;j++) {
 				model.fit(dataSetIteratorTrain);
 				System.out.println("------------------------");
 				
 			}
-			File fileTrainTest=new ClassPathResource("testData.csv").getFile();
+			File fileTrainTest=new ClassPathResource("testData1.csv").getFile();
+			RecordReader recordReaderTest =new CSVRecordReader(0);
+			recordReaderTest.initialize(new FileSplit(fileTrainTest));
+			int batchSizeT=1;
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,16,2);
+			Evaluation evaluation=new Evaluation();
+			while(dataSetIteratorTest.hasNext()) {
+				DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataset.getFeatures();
+				INDArray labels=dataset.getLabels();
+				INDArray predicted=model.output(feature);
+				evaluation.eval(labels, predicted); 
+				
+			}
+			System.out.println(evaluation.stats());
+			a=evaluation.stats();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
+				recordReaderTrain, 1, 9, 9);*/
+		/*
+		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
+		 * new NormalizerStandardize(); normalizer.fit(allData);
+		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
+		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
+		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
+		 */
+		/*
+		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
+		 * inMemoryStatsStorage=new InMemoryStatsStorage();
+		 * uiServer.attach(inMemoryStatsStorage);
+		 * 
+		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
+		 */
+		
+		
+		
+		
+		
+		return a;
+
+	}
+	
+	@Override
+	public String predict() throws Exception{
+		//saveData();
+		double learningRate=0.001;
+		String a = null;
+		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.SIGMOID_UNIFORM)
+				.updater(new Adam(learningRate))
+				.list()
+				.layer(0,new DenseLayer.Builder()
+						  .nIn(16).nOut(2).activation(Activation.SIGMOID).build()
+						  )
+				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
+						  .nIn(2)
+						  .nOut(2)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.POISSON)
+						  .build()
+						  )
+						  
+ 				.build();
+		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
+		model.init();
+		
+		
+		File fileTrain = null;
+		try {
+			fileTrain = new ClassPathResource("trainData1.csv").getFile();
+			
+			RecordReader recordReaderTrain =new CSVRecordReader(0);
+			recordReaderTrain.initialize(new FileSplit(fileTrain));
+			
+			int batchSize=1;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
+			int nEpocks=6;
+			for (int j=0;j<nEpocks;j++) {
+				model.fit(dataSetIteratorTrain);
+				System.out.println("------------------------");
+				
+			}
+			File fileTrainTest=new ClassPathResource("testData1.csv").getFile();
 			RecordReader recordReaderTest =new CSVRecordReader(0);
 			recordReaderTest.initialize(new FileSplit(fileTrainTest));
 			int batchSizeT=1;
@@ -623,11 +713,11 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	       List<DataMatchs> l=dataMatchRepository.findAll();
 	       try
 	      {
-	        file = new FileWriter("trainData.csv");
-	        fileTest = new FileWriter("testData.csv");
+	        file = new FileWriter("src/main/resources/trainData1.csv");
+	        fileTest = new FileWriter("src/main/resources/testData1.csv");
 	        int j=0;
 	        for (DataMatchs d : l) {
-	        	if(j>22000) {
+	        	if(j>20000) {
 	        		  fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
 			          fileTest.append(delemetre);
 			          fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
