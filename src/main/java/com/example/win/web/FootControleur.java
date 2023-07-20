@@ -67,7 +67,7 @@ public class FootControleur {
 		return footMetier.getMatchEncaisseByName(name).size();
 	}
 	
-	@RequestMapping(value = "/allMstatAyyyy?iuiuiu",method = RequestMethod.GET)
+	@RequestMapping(value = "/allMstat",method = RequestMethod.GET)
 	public List<MatchStat> getAllMstat(){
 		return footMetier.getAllMStat();
 	}
@@ -80,6 +80,11 @@ public class FootControleur {
 	@RequestMapping(value = "/predict1",method = RequestMethod.GET)
 	public String getPrediction1() throws Exception{
 		return footMetier.predict1();
+	}
+	@RequestMapping(value = "/saveData",method = RequestMethod.GET)
+	public String savedata() {
+		footMetier.saveData();
+		return "save done ..";
 	}
 	
 

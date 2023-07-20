@@ -14,11 +14,11 @@ public interface MatchFootRepository extends JpaRepository<MatchFoot, Long>{
 	@Query(value="SELECT m FROM MatchFoot m WHERE m.nameUn LIKE ?1 or m.nameDeux LIKE ?1  ORDER BY code DESC ")
 	List<MatchFoot> findAllMatchByNameUn(String name);
 	
-	@Query(value="SELECT m FROM MatchFoot m WHERE m.code< ?2 and  m.nameUn LIKE ?1   ORDER BY code DESC ")
-	List<MatchFoot> findAllLastMatchByNameUn(String name , int code);
+	@Query(value="SELECT m FROM MatchFoot m WHERE m.id < ?2 and  m.nameUn LIKE ?1   ORDER BY code DESC ")
+	List<MatchFoot> findAllLastMatchByNameUn(String name , long code);
 	
-	@Query(value="SELECT m FROM MatchFoot m WHERE m.code< ?2 and   m.nameDeux LIKE ?1   ORDER BY code DESC ")
-	List<MatchFoot> findAllLastMatchByNameDeux(String name , int code);
+	@Query(value="SELECT m FROM MatchFoot m WHERE m.id < ?2 and   m.nameDeux LIKE ?1   ORDER BY code DESC ")
+	List<MatchFoot> findAllLastMatchByNameDeux(String name , long code);
 	
 	@Query("SELECT m FROM MatchFoot m WHERE m.nameUn LIKE ?1 and m.butEqUnMTUn+butEqUnMTDeux > 0 ORDER BY code DESC")
 	List<MatchFoot> findAllMatchMarqueDomByEquipe(String name);

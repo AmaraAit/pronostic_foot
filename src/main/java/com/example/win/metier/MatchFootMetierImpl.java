@@ -64,8 +64,22 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		String [] championnat= {"portugal","belgique","premier-league","liga","serie-a",
 				"bundesliga","pays-bas","turquie",
 				"suisse","ligue-1"};
+		
+		String [] championnat1= {"portugal","belgique","liga","serie-a","turquie","ligue-1"};
+		String[] ann={"2021-2022.htm","2022-2023.htm"};
+		int[] jo= {299,275,343,343,315,343};
+		String[] urls1= {
+				"https://www.maxifoot.fr/calendrier-portugal-",
+				"https://www.maxifoot.fr/calendrier-belgique-",
+				"https://www.maxifoot.fr/calendrier-liga-espagne-",
+				"https://www.maxifoot.fr/calendrier-serie-a-italie-",
+				"https://www.maxifoot.fr/calendrier-turquie-",
+				"https://www.maxifoot.fr/calendrier-ligue-1-france-"};
+		
 		List<String> listlien=new ArrayList<>();
-		String[] annee= {"2012-2013.htm","2013-2014.htm","2014-2015.htm","2015-2016.htm","2016-2017.htm","2017-2018.htm","2018-2019.htm","2019-2020.htm","2020-2021.htm","2022-2023.htm"};
+		String[] annee= {"2012-2013.htm","2013-2014.htm","2014-2015.htm","2015-2016.htm","2016-2017.htm","2017-2018.htm","2018-2019.htm","2019-2020.htm","2020-2021.htm"};
+		
+		
 		
 		
 		String []urls= {
@@ -82,13 +96,13 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		List<MatchFoot> listMatchsFoot=new ArrayList<>();
 		int j=0;
 		String league="";
-		for (int i = 0; i < urls.length; i++) {
-			league=championnat[i];
-			j=1;
-			for (String string : annee) {
+		for (int i = 0; i < urls1.length; i++) {
+			league=championnat1[i];
+			j=jo[i];
+			for (String string : ann) {
 				
 				
-				Document doc = Jsoup.connect(urls[i]+string).get();
+				Document doc = Jsoup.connect(urls1[i]+string).get();
 				String equipe1=null;
 				Date dateMatch;
 				int butEquipe1MT1 = 0;
@@ -175,13 +189,13 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		for (MatchFoot matchFoot : l) {
 			
 			if(matchFoot.getJour()>10) {
-				lin1=footRepository.findAllLastMatchByNameUn(matchFoot.getNameUn(), matchFoot.getCode());
+				lin1=footRepository.findAllLastMatchByNameUn(matchFoot.getNameUn(), matchFoot.getId());
 				m=getinf1(lin1, m);
-				lout1=footRepository.findAllLastMatchByNameDeux(matchFoot.getNameUn(), matchFoot.getCode());
+				lout1=footRepository.findAllLastMatchByNameDeux(matchFoot.getNameUn(), matchFoot.getId());
 				m=getinf2(lout1, m);
-				lin2=footRepository.findAllLastMatchByNameUn(matchFoot.getNameDeux(), matchFoot.getCode());
+				lin2=footRepository.findAllLastMatchByNameUn(matchFoot.getNameDeux(), matchFoot.getId());
 				m=getinf1(lin2, m);
-				lout2=footRepository.findAllLastMatchByNameDeux(matchFoot.getNameDeux(), matchFoot.getCode());
+				lout2=footRepository.findAllLastMatchByNameDeux(matchFoot.getNameDeux(), matchFoot.getId());
 				m=getinf2(lout2, m);
 				System.out.println(lin1.size());
 				
@@ -339,7 +353,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	public List<MatchFoot> getMatchsByName(String name) {
 		List<MatchFoot> liste=footRepository.findAllMatchByNameUn(name);
 		List<MatchFoot> l=new ArrayList<>();
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 5; i++) {
 			l.add(liste.get(i));
 		}
 		return l;
@@ -376,7 +390,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchMarqADom=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0) {
@@ -392,7 +406,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchMarqAEXT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
@@ -408,7 +422,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseADom=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
@@ -425,7 +439,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseAEXT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0) {
@@ -441,7 +455,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchmarqueADOMMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqUnMTUn()>0) {
@@ -457,7 +471,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchmarqueAEXTMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()>0) {
@@ -473,7 +487,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseADOMMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqDeuxMTUn()>0) {
@@ -489,7 +503,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int matchEncaisseAEXTMT=0;
 		int count=0;
 		for (MatchFoot m : l) {
-			if(count>10) {
+			if(count>5) {
 				break;
 			}
 			if(m.getButEqUnMTUn()>0) {
@@ -501,7 +515,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	}
 	@Override
 	public List<MatchStat> getAllMStat() {
-		List<MatchStat> l =statRepository.findAll();
+		List<MatchStat> l = statRepository.findAll();
 		for (MatchStat s : l) {
 			DataMatchs m=new DataMatchs();
 			m.setId(s.getId());
@@ -538,8 +552,8 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		double learningRate=0.001;
 		String a = null;
 		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.SIGMOID_UNIFORM)
+				.optimizationAlgo(OptimizationAlgorithm.LINE_GRADIENT_DESCENT)
+				.weightInit(WeightInit.XAVIER_UNIFORM)
 				.updater(new Adam(learningRate))
 				.list()
 				.layer(0,new DenseLayer.Builder()
@@ -549,7 +563,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 						  .nIn(2)
 						  .nOut(2)
 						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.COSINE_PROXIMITY)
+						  .lossFunction(LossFunction.SQUARED_LOSS)
 						  .build()
 						  )
 						  
@@ -567,7 +581,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			
 			int batchSize=1;
 			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
-			int nEpocks=6;
+			int nEpocks=10;
 			for (int j=0;j<nEpocks;j++) {
 				model.fit(dataSetIteratorTrain);
 				System.out.println("------------------------");
@@ -635,7 +649,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
 						  .nIn(2)
 						  .nOut(2)
-						  .activation(Activation.SOFTPLUS)
+						  .activation(Activation.SOFTMAX)
 						  .lossFunction(LossFunction.POISSON)
 						  .build()
 						  )
@@ -717,7 +731,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	        fileTest = new FileWriter("src/main/resources/testData1.csv");
 	        int j=0;
 	        for (DataMatchs d : l) {
-	        	if(j>20000) {
+	        	if(j>24500) {
 	        		  fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
 			          fileTest.append(delemetre);
 			          fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
