@@ -830,7 +830,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		int numberMatchMTUnProlifique=0;
 		int numberMatchPlusDeuxBut=0;
 		int numberMatchPlusDeuxButMiTemps=0;
-		int jour=0;
+		int jour=1;
 		
 		for (MatchFoot m : l) {
 			e.setName(equipe);
@@ -881,7 +881,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		 int numberMatchMiTempsUnPlusProlifique=0;
 		 int numberMatchPlusDeuxBut=0;
 		 int numberMatchPlusDeuxButMiTemps=0;
-		 int jour=0;
+		 int jour=1;
 		
 		for (MatchFoot m : l) {
 			championnat.setName(m.getLeague());
@@ -914,8 +914,24 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		championnat.setNumberMatchNullMiTemps(numberMatchNullMiTemps);
 		championnat.setNumberMatchPlusDeuxBut(numberMatchPlusDeuxBut);
 		championnat.setNumberMatchPlusDeuxButMiTemps(numberMatchPlusDeuxButMiTemps);
-		championnat.setNumberMatch(jour-1);
+		championnat.setNumberMatch(jour);
 		return championnat;
+	}
+	@Override
+	public List<MatchFoot> getM(String name, int num) {
+		List<MatchFoot> l = footRepository.getStatByEquipe(name);
+		List<MatchFoot> lis=new ArrayList<>();
+		int number=1;
+		for (MatchFoot m : l) {
+			if(number>num) {
+				break;
+			}
+			number+=1;
+			lis.add(m);
+			
+			
+		}
+		return lis;
 	}
 	
 	

@@ -101,6 +101,12 @@ public class FootControleur {
 		return footMetier.getStatByEquipe(league,number);
 	}
 	
+	@RequestMapping(value = "/Equipe/{name}/{number}",method = RequestMethod.GET)
+	public List<MatchFoot> getEquipe(@PathVariable String name,@PathVariable int number) {
+		
+		return footMetier.getM(name,number);
+	}
+	
 	
 	
 

@@ -60,6 +60,8 @@ public interface MatchFootMetier {
 	public LeagueStats getStat(String league,int numberMatch);
 	
 	public Equipe getStatByEquipe(String Equipe,int numberMatch);
+	
+	public List<MatchFoot> getM(String name, int num);
 
 	String predict1() throws Exception;
 
