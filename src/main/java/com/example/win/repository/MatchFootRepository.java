@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import com.example.win.entities.LeagueStats;
 import com.example.win.entities.MatchFoot;
 @RepositoryRestResource
 public interface MatchFootRepository extends JpaRepository<MatchFoot, Long>{
@@ -31,4 +32,10 @@ public interface MatchFootRepository extends JpaRepository<MatchFoot, Long>{
 	
 	@Query("SELECT m FROM MatchFoot m WHERE m.nameDeux LIKE ?1 and m.butEqUnMTUn+butEqUnMTDeux > 0 ORDER BY code DESC")
 	List<MatchFoot> findAllMatchEncaisseExtByEquipe(String name);
+	
+	@Query("SELECT m FROM MatchFoot m WHERE m.league LIKE ?1  ORDER BY id DESC")
+	List<MatchFoot> getStatByLeague(String name);
+	
+	@Query("SELECT m FROM MatchFoot m WHERE m.nameUn LIKE ?1 or m.nameDeux LIKE ?1  ORDER BY id DESC")
+	List<MatchFoot> getStatByEquipe(String name);
 }

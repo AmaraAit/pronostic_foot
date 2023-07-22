@@ -2,6 +2,8 @@ package com.example.win.metier;
 
 import java.util.List;
 
+import com.example.win.entities.Equipe;
+import com.example.win.entities.LeagueStats;
 import com.example.win.entities.MatchFoot;
 import com.example.win.entities.MatchStat;
 
@@ -54,6 +56,10 @@ public interface MatchFootMetier {
 	public String predict() throws Exception;
 
 	public void saveData();
+	
+	public LeagueStats getStat(String league,int numberMatch);
+	
+	public Equipe getStatByEquipe(String Equipe,int numberMatch);
 
 	String predict1() throws Exception;
 

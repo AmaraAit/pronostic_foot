@@ -6,8 +6,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.win.entities.Equipe;
+import com.example.win.entities.LeagueStats;
 import com.example.win.entities.MatchFoot;
 import com.example.win.entities.MatchStat;
 import com.example.win.metier.MatchFootMetier;
@@ -86,6 +89,19 @@ public class FootControleur {
 		footMetier.saveData();
 		return "save done ..";
 	}
+	@RequestMapping(value = "/getstat/{league}/{number}",method = RequestMethod.GET)
+	public LeagueStats getStat(@PathVariable String league,@PathVariable int number) {
+		
+		return footMetier.getStat(league,number);
+	}
+	
+	@RequestMapping(value = "/getstatEquipe/{league}/{number}",method = RequestMethod.GET)
+	public Equipe getStatEquipe(@PathVariable String league,@PathVariable int number) {
+		
+		return footMetier.getStatByEquipe(league,number);
+	}
+	
+	
 	
 
 }

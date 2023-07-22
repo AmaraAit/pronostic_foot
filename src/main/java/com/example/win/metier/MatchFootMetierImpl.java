@@ -5,8 +5,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -28,7 +26,6 @@ import org.nd4j.evaluation.classification.Evaluation;
 import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
-import org.nd4j.linalg.dataset.SplitTestAndTrain;
 import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.learning.config.Adam;
@@ -36,11 +33,14 @@ import org.nd4j.linalg.lossfunctions.LossFunctions.LossFunction;
 import org.springframework.stereotype.Service;
 
 import com.example.win.entities.DataMatchs;
+import com.example.win.entities.Equipe;
+import com.example.win.entities.LeagueStats;
 import com.example.win.entities.MatchFoot;
 import com.example.win.entities.MatchStat;
 import com.example.win.repository.DataMatchRepository;
 import com.example.win.repository.MatchFootRepository;
 import com.example.win.repository.MatchStatRepository;
+
 @Service
 public class MatchFootMetierImpl implements MatchFootMetier{
 	
@@ -552,18 +552,18 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		double learningRate=0.001;
 		String a = null;
 		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.LINE_GRADIENT_DESCENT)
-				.weightInit(WeightInit.XAVIER_UNIFORM)
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.RELU)
 				.updater(new Adam(learningRate))
 				.list()
 				.layer(0,new DenseLayer.Builder()
-						  .nIn(16).nOut(2).activation(Activation.SIGMOID).build()
+						  .nIn(16).nOut(2).activation(Activation.RELU).build()
 						  )
 				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
 						  .nIn(2)
 						  .nOut(2)
 						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.SQUARED_LOSS)
+						  .lossFunction(LossFunction.POISSON)
 						  .build()
 						  )
 						  
@@ -581,7 +581,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			
 			int batchSize=1;
 			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
-			int nEpocks=10;
+			int nEpocks=3;
 			for (int j=0;j<nEpocks;j++) {
 				model.fit(dataSetIteratorTrain);
 				System.out.println("------------------------");
@@ -639,7 +639,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		double learningRate=0.001;
 		String a = null;
 		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.optimizationAlgo(OptimizationAlgorithm.CONJUGATE_GRADIENT)
 				.weightInit(WeightInit.SIGMOID_UNIFORM)
 				.updater(new Adam(learningRate))
 				.list()
@@ -668,7 +668,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			
 			int batchSize=1;
 			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
-			int nEpocks=6;
+			int nEpocks=2;
 			for (int j=0;j<nEpocks;j++) {
 				model.fit(dataSetIteratorTrain);
 				System.out.println("------------------------");
@@ -731,7 +731,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	        fileTest = new FileWriter("src/main/resources/testData1.csv");
 	        int j=0;
 	        for (DataMatchs d : l) {
-	        	if(j>24500) {
+	        	if(j>27000) {
 	        		  fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
 			          fileTest.append(delemetre);
 			          fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
@@ -817,6 +817,105 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	      {
 	        e.printStackTrace();
 	      }
+	}
+	@Override
+	public Equipe getStatByEquipe(String equipe,int numberMatch) {
+		Equipe e=new Equipe();
+		List<MatchFoot> l=footRepository.getStatByEquipe(equipe);
+		String name;
+		int numberMatchNull=0;
+		int numberMatchNullMiTemps=0;
+		int numberMatchDeuxEquipeMarque=0;
+		int numberMatchMTDeuxProlifique=0;
+		int numberMatchMTUnProlifique=0;
+		int numberMatchPlusDeuxBut=0;
+		int numberMatchPlusDeuxButMiTemps=0;
+		int jour=0;
+		
+		for (MatchFoot m : l) {
+			e.setName(equipe);
+			if(jour>numberMatch) {
+				break;
+			}
+			if(m.getButEqUnMTUn()==m.getButEqDeuxMTUn()) {
+				numberMatchNullMiTemps+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()<m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()) {
+				numberMatchMTDeuxProlifique+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()>m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()) {
+				numberMatchMTUnProlifique+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()+m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()>2) {
+				numberMatchPlusDeuxBut+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()>2) {
+				numberMatchPlusDeuxButMiTemps+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0 && m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
+				numberMatchDeuxEquipeMarque+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()==m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()) {
+				numberMatchNull+=1;
+			}
+			jour+=1;
+		}
+		e.setNumberMatchNull(numberMatchNull);
+		e.setNumberMatchDeuxEquipeMarque(numberMatchDeuxEquipeMarque);
+		e.setNumberMatchMTDeuxProlifique(numberMatchMTDeuxProlifique);
+		e.setNumberMatchMTUnProlifique(numberMatchMTUnProlifique);
+		e.setNumberMatchNullMiTemps(numberMatchNullMiTemps);
+		e.setNumberMatchPlusDeuxBut(numberMatchPlusDeuxBut);
+		e.setNumberMatchPlusDeuxButMiTemps(numberMatchPlusDeuxButMiTemps);
+		e.setNumberMatch(numberMatch);
+		return e;
+	}
+	
+	@Override
+	public LeagueStats getStat(String league,int numberMatch) {
+		LeagueStats championnat=new LeagueStats();
+		List<MatchFoot> l=footRepository.getStatByLeague(league);
+		 int numberMatchNullMiTemps=0;
+		 int numberMatchDeuxEquipeMarque=0;
+		 int numberMatchMiTempsDeuxPlusProlifique=0;
+		 int numberMatchMiTempsUnPlusProlifique=0;
+		 int numberMatchPlusDeuxBut=0;
+		 int numberMatchPlusDeuxButMiTemps=0;
+		 int jour=0;
+		
+		for (MatchFoot m : l) {
+			championnat.setName(m.getLeague());
+			if(jour>numberMatch) {
+				break;
+			}
+			if(m.getButEqUnMTUn()==m.getButEqDeuxMTUn()) {
+				numberMatchNullMiTemps+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()<m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()) {
+				numberMatchMiTempsDeuxPlusProlifique+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()>m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()) {
+				numberMatchMiTempsUnPlusProlifique+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()+m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()>2) {
+				numberMatchPlusDeuxBut+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()>2) {
+				numberMatchPlusDeuxButMiTemps+=1;
+			}
+			if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0 && m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
+				numberMatchDeuxEquipeMarque+=1;
+			}
+			jour+=1;
+		}
+		championnat.setNumberMatchDeuxEquipeMarque(numberMatchDeuxEquipeMarque);
+		championnat.setNumberMatchMiTempsDeuxPlusProlifique(numberMatchMiTempsDeuxPlusProlifique);
+		championnat.setNumberMatchMiTempsUnPlusProlifique(numberMatchMiTempsUnPlusProlifique);
+		championnat.setNumberMatchNullMiTemps(numberMatchNullMiTemps);
+		championnat.setNumberMatchPlusDeuxBut(numberMatchPlusDeuxBut);
+		championnat.setNumberMatchPlusDeuxButMiTemps(numberMatchPlusDeuxButMiTemps);
+		championnat.setNumberMatch(jour-1);
+		return championnat;
 	}
 	
 	
