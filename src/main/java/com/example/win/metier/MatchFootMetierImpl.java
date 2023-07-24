@@ -282,16 +282,39 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			ms.setEquipeExterieur(m.getNameDeux());
 			ms.setLeague(m.getLeague());
 			ms.setId(m.getId());
-			if((m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0) && (m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0)) {
-				ms.setIsDeuxEquipeMarque(1);
-			}else {
-				ms.setIsDeuxEquipeMarque(0);
-			}
+			
 			if(m.getJour()>10) {
-				listMEqUNDOM=footRepository.findAllLastMatchByNameUn(m.getNameUn(), m.getCode());
-				listMEqUNEXT=footRepository.findAllLastMatchByNameDeux(m.getNameUn(), m.getCode());
-				listMEqDEUXDOM=footRepository.findAllLastMatchByNameUn(m.getNameDeux(), m.getCode());
-				listMEqDEUXEXT=footRepository.findAllLastMatchByNameDeux(m.getNameDeux(), m.getCode());
+				if(m.getButEqUnMTUn()==m.getButEqDeuxMTUn()) {
+					ms.setIsMatchNullMiTemps(1);
+				}else {
+					ms.setIsMatchNullMiTemps(0);
+				}
+				if((m.getButEqUnMTUn()+m.getButEqUnMTDeux()+m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>2)) {
+					ms.setIsPlusDeuxBut(1);
+				}else {
+					ms.setIsPlusDeuxBut(0);
+				}
+				if(m.getButEqUnMTUn()+m.getButEqUnMTDeux()>0 && m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
+					ms.setIsDeuxEquipeMarque(1);
+				}else {
+					ms.setIsDeuxEquipeMarque(0);
+				}
+					
+				if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()>m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()) {
+					ms.setIsMiTempsUnProlifique(1);
+				}else {
+					ms.setIsMiTempsUnProlifique(0);
+				}
+				if(m.getButEqUnMTUn()+m.getButEqDeuxMTUn()<m.getButEqUnMTDeux()+m.getButEqDeuxMTDeux()) {
+					ms.setIsMiTempsDeuxProlifique(1);
+				}else {
+					ms.setIsMiTempsDeuxProlifique(0);
+				}
+				listMEqUNDOM=footRepository.findAllLastMatchByNameUn(m.getNameUn(), m.getId());
+				listMEqUNEXT=footRepository.findAllLastMatchByNameDeux(m.getNameUn(), m.getId());
+				listMEqDEUXDOM=footRepository.findAllLastMatchByNameUn(m.getNameDeux(), m.getId());
+				listMEqDEUXEXT=footRepository.findAllLastMatchByNameDeux(m.getNameDeux(), m.getId());
+				
 				ms.setNbrMatchMarqueByEquipeUnADOM(matchmarqeAdom(listMEqUNDOM));
 				ms.setNbrMatchMarqueByEquipeUnADOMMT(matchmarqeAdomMT(listMEqUNDOM));
 				ms.setNbrMatchMarqueByEquipeUnAEXT(matchmarqeAext(listMEqUNEXT));
@@ -300,6 +323,14 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 				ms.setNbrMatchMarqueByEquipeDeuxADOMMT(matchmarqeAdomMT(listMEqDEUXDOM));
 				ms.setNbrMatchMarqueByEquipeDeuxAEXT(matchmarqeAext(listMEqDEUXEXT));
 				ms.setNbrMatchMarqueByEquipeDeuxAEXTMT(matchmarqeAextMT(listMEqDEUXEXT));
+				ms.setNbrButMarqueByEquipeUn(butmarqeAdom(listMEqUNDOM));
+				ms.setNbrButMarqueByEquipeDeux(butmarqeAext(listMEqUNEXT));
+				ms.setNbrButEncaisseByEquipeUn(butEncaisseAdom(listMEqUNDOM));
+				ms.setNbrButEncaisseByEquipeDeux(butEncaisseAext(listMEqUNEXT));
+				ms.setNbrButMarqueByEquipeUn(butmarqeAdom(listMEqDEUXDOM));
+				ms.setNbrButMarqueByEquipeDeux(butmarqeAext(listMEqDEUXEXT));
+				ms.setNbrButEncaisseByEquipeUn(butEncaisseAdom(listMEqDEUXDOM));
+				ms.setNbrButEncaisseByEquipeDeux(butEncaisseAext(listMEqDEUXEXT));
 				
 				ms.setNbrMatchEncaisseByEquipeUnADOM(matchencaisseAdom(listMEqUNDOM));
 				ms.setNbrMatchEncaisseByEquipeUnADOMMT(matchencaisseAdomMT(listMEqUNDOM));
@@ -309,6 +340,8 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 				ms.setNbrMatchEncaisseByEquipeDeuxADOMMT(matchencaisseAdomMT(listMEqDEUXDOM));
 				ms.setNbrMatchEncaisseByEquipeDeuxAEXT(matchencaisseAext(listMEqDEUXEXT));
 				ms.setNbrMatchEncaisseByEquipeDeuxAEXTMT(matchencaisseAextMT(listMEqDEUXEXT));
+				
+				
 				statRepository.save(ms);
 			}
 		}
@@ -370,6 +403,10 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		}
 		return l;
 	}
+	
+	
+	
+	
 
 	@Override
 	public List<MatchFoot> getMatchEncaisseByName(String name) {
@@ -399,6 +436,65 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			count+=1;
 		}
 		return matchMarqADom;
+	}
+	
+	public double butmarqeAdom(List<MatchFoot> l) {
+		int but=0;
+		int count=0;
+		for (MatchFoot m : l) {
+			if(count>5) {
+				break;
+			}
+			
+				but+=m.getButEqUnMTUn()+m.getButEqUnMTDeux();
+			
+			count+=1;
+		}
+		return but;
+	}
+	
+	public double butmarqeAext(List<MatchFoot> l) {
+		int but=0;
+		int count=0;
+		for (MatchFoot m : l) {
+			if(count>5) {
+				break;
+			}
+			
+				but+=m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux();
+			
+			count+=1;
+		}
+		return but;
+	}
+	
+	public double butEncaisseAdom(List<MatchFoot> l) {
+		int but=0;
+		int count=0;
+		for (MatchFoot m : l) {
+			if(count>5) {
+				break;
+			}
+			if(m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux()>0) {
+				but+=m.getButEqDeuxMTUn()+m.getButEqDeuxMTDeux();
+			}
+			count+=1;
+		}
+		return but;
+	}
+	
+	public double butEncaisseAext(List<MatchFoot> l) {
+		int but=0;
+		int count=0;
+		for (MatchFoot m : l) {
+			if(count>5) {
+				break;
+			}
+			but+=m.getButEqUnMTUn()+m.getButEqUnMTDeux();
+			
+			count+=1;
+		}
+		return but;
 	}
 
 	@Override
@@ -546,92 +642,6 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		return l;
 	}
 	
-	@Override
-	public String predict1() throws Exception{
-		//saveData();
-		double learningRate=0.001;
-		String a = null;
-		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.RELU)
-				.updater(new Adam(learningRate))
-				.list()
-				.layer(0,new DenseLayer.Builder()
-						  .nIn(16).nOut(2).activation(Activation.RELU).build()
-						  )
-				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
-						  .nIn(2)
-						  .nOut(2)
-						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.POISSON)
-						  .build()
-						  )
-						  
- 				.build();
-		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
-		model.init();
-		
-		
-		File fileTrain = null;
-		try {
-			fileTrain = new ClassPathResource("trainData1.csv").getFile();
-			
-			RecordReader recordReaderTrain =new CSVRecordReader(0);
-			recordReaderTrain.initialize(new FileSplit(fileTrain));
-			
-			int batchSize=1;
-			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
-			int nEpocks=3;
-			for (int j=0;j<nEpocks;j++) {
-				model.fit(dataSetIteratorTrain);
-				System.out.println("------------------------");
-				
-			}
-			File fileTrainTest=new ClassPathResource("testData1.csv").getFile();
-			RecordReader recordReaderTest =new CSVRecordReader(0);
-			recordReaderTest.initialize(new FileSplit(fileTrainTest));
-			int batchSizeT=1;
-			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,16,2);
-			Evaluation evaluation=new Evaluation();
-			while(dataSetIteratorTest.hasNext()) {
-				DataSet dataset=dataSetIteratorTest.next();
-				INDArray feature=dataset.getFeatures();
-				INDArray labels=dataset.getLabels();
-				INDArray predicted=model.output(feature);
-				evaluation.eval(labels, predicted); 
-				
-			}
-			System.out.println(evaluation.stats());
-			a=evaluation.stats();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
-				recordReaderTrain, 1, 9, 9);*/
-		/*
-		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
-		 * new NormalizerStandardize(); normalizer.fit(allData);
-		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
-		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
-		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
-		 */
-		/*
-		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
-		 * inMemoryStatsStorage=new InMemoryStatsStorage();
-		 * uiServer.attach(inMemoryStatsStorage);
-		 * 
-		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
-		 */
-		
-		
-		
-		
-		
-		return a;
-
-	}
 	
 	@Override
 	public String predict() throws Exception{
@@ -644,7 +654,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 				.updater(new Adam(learningRate))
 				.list()
 				.layer(0,new DenseLayer.Builder()
-						  .nIn(16).nOut(2).activation(Activation.SIGMOID).build()
+						  .nIn(20).nOut(2).activation(Activation.SIGMOID).build()
 						  )
 				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
 						  .nIn(2)
@@ -667,8 +677,8 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			recordReaderTrain.initialize(new FileSplit(fileTrain));
 			
 			int batchSize=1;
-			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,16,2);
-			int nEpocks=2;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
+			int nEpocks=1;
 			for (int j=0;j<nEpocks;j++) {
 				model.fit(dataSetIteratorTrain);
 				System.out.println("------------------------");
@@ -678,15 +688,14 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			RecordReader recordReaderTest =new CSVRecordReader(0);
 			recordReaderTest.initialize(new FileSplit(fileTrainTest));
 			int batchSizeT=1;
-			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,16,2);
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
 			Evaluation evaluation=new Evaluation();
 			while(dataSetIteratorTest.hasNext()) {
-				DataSet dataset=dataSetIteratorTest.next();
-				INDArray feature=dataset.getFeatures();
-				INDArray labels=dataset.getLabels();
+				//DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataSetIteratorTest.next().getFeatures();
+				INDArray labels=dataSetIteratorTest.next().getLabels();
 				INDArray predicted=model.output(feature);
 				evaluation.eval(labels, predicted); 
-				
 			}
 			System.out.println(evaluation.stats());
 			a=evaluation.stats();
@@ -722,16 +731,32 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	public void saveData() {
 		FileWriter file = null;
 		FileWriter fileTest = null;
+		FileWriter file1 = null;
+		FileWriter fileTest1 = null;
+		FileWriter file2 = null;
+		FileWriter fileTest2 = null;
+		FileWriter file3 = null;
+		FileWriter fileTest3 = null;
+		FileWriter file4 = null;
+		FileWriter fileTest4 = null;
 	       String sep="\n";
 	       String delemetre=",";
-	       List<DataMatchs> l=dataMatchRepository.findAll();
+	       List<MatchStat> l=statRepository.findAll();
 	       try
 	      {
-	        file = new FileWriter("src/main/resources/trainData1.csv");
-	        fileTest = new FileWriter("src/main/resources/testData1.csv");
+	        file = new FileWriter("src/main/resources/trainData.csv");
+	        fileTest = new FileWriter("src/main/resources/testData.csv");
+	        file1 = new FileWriter("src/main/resources/trainData1.csv");
+	        fileTest1 = new FileWriter("src/main/resources/testData1.csv");
+	        file2 = new FileWriter("src/main/resources/trainData2.csv");
+	        fileTest2 = new FileWriter("src/main/resources/testData2.csv");
+	        file3 = new FileWriter("src/main/resources/trainData3.csv");
+	        fileTest3 = new FileWriter("src/main/resources/testData3.csv");
+	        file4 = new FileWriter("src/main/resources/trainData4.csv");
+	        fileTest4 = new FileWriter("src/main/resources/testData4.csv");
 	        int j=0;
-	        for (DataMatchs d : l) {
-	        	if(j>27000) {
+	        for (MatchStat d : l) {
+	        	if(j>28000) {
 	        		  fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
 			          fileTest.append(delemetre);
 			          fileTest.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
@@ -747,6 +772,15 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			          fileTest.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
 			          fileTest.append(delemetre);
 			          fileTest.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+			          fileTest.append(delemetre);
+			          
+			          fileTest.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+			          fileTest.append(delemetre);
+			          fileTest.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+			          fileTest.append(delemetre);
+			          fileTest.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+			          fileTest.append(delemetre);
+			          fileTest.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
 			          fileTest.append(delemetre);
 			          
 			          fileTest.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
@@ -765,9 +799,199 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			          fileTest.append(delemetre);
 			          fileTest.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
 			          fileTest.append(delemetre);
-			          fileTest.append((String.valueOf(d.getIsDeuxEquipeMarque())));
-			          
+			          fileTest.append((String.valueOf(d.getIsPlusDeuxBut())));
 			          fileTest.append(sep);
+			          
+			          //*********************************
+			          fileTest1.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+			          fileTest1.append(delemetre);
+			          fileTest1.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+			          fileTest1.append(delemetre);
+			          
+			          fileTest1.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+			          fileTest1.append(delemetre);
+			          
+			          fileTest1.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+			          fileTest1.append(delemetre);
+			          fileTest1.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+			          fileTest1.append(delemetre);
+			          fileTest1.append((String.valueOf(d.getIsMatchNullMiTemps())));
+			          fileTest1.append(sep);
+			          //****************************************************
+			          fileTest2.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+			          fileTest2.append(delemetre);
+			          fileTest2.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+			          fileTest2.append(delemetre);
+			          
+			          fileTest2.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+			          fileTest2.append(delemetre);
+			          
+			          fileTest2.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+			          fileTest2.append(delemetre);
+			          fileTest2.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+			          fileTest2.append(delemetre);
+			          fileTest2.append((String.valueOf(d.getIsMiTempsDeuxProlifique())));
+			          fileTest2.append(sep);
+			          //*******************************************************
+						/*
+						 * fileTest3.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+						 * fileTest3.append(delemetre);
+						 * fileTest3.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+						 * fileTest3.append(delemetre);
+						 */
+			          fileTest3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+			          fileTest3.append(delemetre);
+						/*
+						 * fileTest3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+						 * fileTest3.append(delemetre);
+						 * fileTest3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+						 * fileTest3.append(delemetre);
+						 */
+			          fileTest3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+			          fileTest3.append(delemetre);
+			          
+			          fileTest3.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+			          fileTest3.append(delemetre);
+			          
+						/*
+						 * fileTest3.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+						 * fileTest3.append(delemetre);
+						 * fileTest3.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+						 * fileTest3.append(delemetre);
+						 */
+			          fileTest3.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+			          fileTest3.append(delemetre);
+						/*
+						 * fileTest3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+						 * fileTest3.append(delemetre);
+						 * fileTest3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+						 * fileTest3.append(delemetre);
+						 */
+			          fileTest3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+			          fileTest3.append(delemetre);
+			          fileTest3.append((String.valueOf(d.getIsPlusDeuxBut())));
+			          fileTest3.append(sep);
+			          
+			          //***********************************************
+			          fileTest4.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+			          fileTest4.append(delemetre);
+			          fileTest4.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+			          fileTest4.append(delemetre);
+			          
+			          fileTest4.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+			          fileTest4.append(delemetre);
+			          
+			          fileTest4.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+			          fileTest4.append(delemetre);
+			          fileTest4.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+			          fileTest4.append(delemetre);
+			          fileTest4.append((String.valueOf(d.getIsMiTempsUnProlifique())));
+			          fileTest4.append(sep);
+
 	        	}else {
 	        		  file.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
 	        		  file.append(delemetre);
@@ -784,6 +1008,15 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	        		  file.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
 	        		  file.append(delemetre);
 	        		  file.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+	        		  file.append(delemetre);
+	        		  
+	        		  file.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+	        		  file.append(delemetre);
+	        		  file.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+	        		  file.append(delemetre);
+	        		  file.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+	        		  file.append(delemetre);
+	        		  file.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
 	        		  file.append(delemetre);
 			          
 	        		  file.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
@@ -802,9 +1035,200 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	        		  file.append(delemetre);
 	        		  file.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
 	        		  file.append(delemetre);
-	        		  file.append((String.valueOf(d.getIsDeuxEquipeMarque())));
+	        		  file.append((String.valueOf(d.getIsPlusDeuxBut())));
+			          file.append(sep);
 			          
-	        		  file.append(sep);
+			          //********************************************************
+			          
+			          file1.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+	        		  file1.append(delemetre);
+	        		  file1.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+	        		  file1.append(delemetre);
+	        		  
+	        		  file1.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+	        		  file1.append(delemetre);
+			          
+	        		  file1.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+	        		  file1.append(delemetre);
+	        		  file1.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+	        		  file1.append(delemetre);
+	        		  file1.append((String.valueOf(d.getIsMiTempsUnProlifique())));
+			          file1.append(sep);
+			          //********************************************************
+			          file2.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+	        		  file2.append(delemetre);
+	        		  file2.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+	        		  file2.append(delemetre);
+	        		  
+	        		  file2.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+	        		  file2.append(delemetre);
+			          
+	        		  file2.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+	        		  file2.append(delemetre);
+	        		  file2.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+	        		  file2.append(delemetre);
+	        		  file2.append((String.valueOf(d.getIsMiTempsDeuxProlifique())));
+			          file2.append(sep);
+			          //***************************************************************
+						/*
+						 * file3.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+						 * file3.append(delemetre);
+						 * file3.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+						 * file3.append(delemetre);
+						 */
+	        		  file3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+	        		  file3.append(delemetre);
+						/*
+						 * file3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+						 * file3.append(delemetre);
+						 * file3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+						 * file3.append(delemetre);
+						 */
+	        		  file3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+	        		  file3.append(delemetre);
+	        		  
+	        		  file3.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+	        		  file3.append(delemetre);
+			          
+						/*
+						 * file3.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+						 * file3.append(delemetre);
+						 * file3.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+						 * file3.append(delemetre);
+						 */
+	        		  file3.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+	        		  file3.append(delemetre);
+						/*
+						 * file3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+						 * file3.append(delemetre);
+						 * file3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+						 * file3.append(delemetre);
+						 */
+	        		  file3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+	        		  file3.append(delemetre);
+	        		  file3.append((String.valueOf(d.getIsPlusDeuxBut())));
+			          file3.append(sep);
+			          
+			          //***************************************************
+			          
+			          file4.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOM()));
+	        		  file4.append(delemetre);
+	        		  file4.append(String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxADOMMT()));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeDeuxAEXTMT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOM())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnADOMMT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchEncaisseByEquipeUnAEXTMT())));
+	        		  file4.append(delemetre);
+	        		  
+	        		  file4.append((String.valueOf(d.getNbrButMarqueByEquipeUn())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrButMarqueByEquipeDeux())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrButEncaisseByEquipeUn())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrButEncaisseByEquipeDeux())));
+	        		  file4.append(delemetre);
+			          
+	        		  file4.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOM()));
+	        		  file4.append(delemetre);
+	        		  file4.append(String.valueOf(d.getNbrMatchMarqueByEquipeDeuxADOMMT()));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchMarqueByEquipeDeuxAEXTMT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOM())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnADOMMT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getNbrMatchMarqueByEquipeUnAEXTMT())));
+	        		  file4.append(delemetre);
+	        		  file4.append((String.valueOf(d.getIsMiTempsUnProlifique())));
+			          file4.append(sep);
 	        	}
 	        	j+=1;
 	        	  
@@ -932,6 +1356,404 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			
 		}
 		return lis;
+	}
+	@Override
+	public String predictDeuxEquipeMarque() throws Exception{
+		//saveData();
+		double learningRate=0.001;
+		String a = null;
+		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.RELU_UNIFORM)
+				.updater(new Adam(learningRate))
+				.list()
+				.layer(0,new DenseLayer.Builder()
+						  .nIn(20).nOut(2).activation(Activation.SIGMOID).build()
+						  )
+				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
+						  .nIn(2)
+						  .nOut(2)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.POISSON)
+						  .build()
+						  )
+						  
+ 				.build();
+		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
+		model.init();
+		
+		
+		File fileTrain = null;
+		try {
+			fileTrain = new ClassPathResource("trainData.csv").getFile();
+			
+			RecordReader recordReaderTrain =new CSVRecordReader(0);
+			recordReaderTrain.initialize(new FileSplit(fileTrain));
+			
+			int batchSize=1;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
+			int nEpocks=3;
+			for (int j=0;j<nEpocks;j++) {
+				model.fit(dataSetIteratorTrain);
+				System.out.println("------------------------");
+				
+			}
+			File fileTrainTest=new ClassPathResource("testData.csv").getFile();
+			RecordReader recordReaderTest =new CSVRecordReader(0);
+			recordReaderTest.initialize(new FileSplit(fileTrainTest));
+			int batchSizeT=1;
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
+			Evaluation evaluation=new Evaluation();
+			while(dataSetIteratorTest.hasNext()) {
+				DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataset.getFeatures();
+				INDArray labels=dataset.getLabels();
+				INDArray predicted=model.output(feature);
+				evaluation.eval(labels, predicted); 
+				
+			}
+			System.out.println(evaluation.stats());
+			a=evaluation.stats();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
+				recordReaderTrain, 1, 9, 9);*/
+		/*
+		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
+		 * new NormalizerStandardize(); normalizer.fit(allData);
+		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
+		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
+		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
+		 */
+		/*
+		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
+		 * inMemoryStatsStorage=new InMemoryStatsStorage();
+		 * uiServer.attach(inMemoryStatsStorage);
+		 * 
+		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
+		 */
+		return a;
+
+	}
+	
+	@Override
+	public String predictMAtchNullMitemps() throws Exception {
+		double learningRate=0.001;
+		String a = null;
+		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.RELU)
+				.updater(new Adam(learningRate))
+				.list()
+				.layer(0,new DenseLayer.Builder()
+						  .nIn(20).nOut(2).activation(Activation.RELU).build()
+						  )
+				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
+						  .nIn(2)
+						  .nOut(2)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.POISSON)
+						  .build()
+						  )
+						  
+ 				.build();
+		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
+		model.init();
+		
+		
+		File fileTrain = null;
+		try {
+			fileTrain = new ClassPathResource("trainData1.csv").getFile();
+			
+			RecordReader recordReaderTrain =new CSVRecordReader(0);
+			recordReaderTrain.initialize(new FileSplit(fileTrain));
+			
+			int batchSize=1;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
+			int nEpocks=3;
+			for (int j=0;j<nEpocks;j++) {
+				model.fit(dataSetIteratorTrain);
+				System.out.println("------------------------");
+				
+			}
+			File fileTrainTest=new ClassPathResource("testData1.csv").getFile();
+			RecordReader recordReaderTest =new CSVRecordReader(0);
+			recordReaderTest.initialize(new FileSplit(fileTrainTest));
+			int batchSizeT=1;
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
+			Evaluation evaluation=new Evaluation();
+			while(dataSetIteratorTest.hasNext()) {
+				DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataset.getFeatures();
+				INDArray labels=dataset.getLabels();
+				INDArray predicted=model.output(feature);
+				evaluation.eval(labels, predicted); 
+				
+			}
+			System.out.println(evaluation.stats());
+			a=evaluation.stats();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
+				recordReaderTrain, 1, 9, 9);*/
+		/*
+		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
+		 * new NormalizerStandardize(); normalizer.fit(allData);
+		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
+		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
+		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
+		 */
+		/*
+		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
+		 * inMemoryStatsStorage=new InMemoryStatsStorage();
+		 * uiServer.attach(inMemoryStatsStorage);
+		 * 
+		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
+		 */
+		return a;
+	}
+	@Override
+	public String predictMiTempsUnProlifique() throws Exception {
+		double learningRate=0.001;
+		String a = null;
+		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.RELU)
+				.updater(new Adam(learningRate))
+				.list()
+				.layer(0,new DenseLayer.Builder()
+						  .nIn(20).nOut(2).activation(Activation.RELU).build()
+						  )
+				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
+						  .nIn(2)
+						  .nOut(2)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.POISSON)
+						  .build()
+						  )
+						  
+ 				.build();
+		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
+		model.init();
+		
+		
+		File fileTrain = null;
+		try {
+			fileTrain = new ClassPathResource("trainData4.csv").getFile();
+			
+			RecordReader recordReaderTrain =new CSVRecordReader(0);
+			recordReaderTrain.initialize(new FileSplit(fileTrain));
+			
+			int batchSize=1;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
+			int nEpocks=3;
+			for (int j=0;j<nEpocks;j++) {
+				model.fit(dataSetIteratorTrain);
+				System.out.println("------------------------");
+				
+			}
+			File fileTrainTest=new ClassPathResource("testData4.csv").getFile();
+			RecordReader recordReaderTest =new CSVRecordReader(0);
+			recordReaderTest.initialize(new FileSplit(fileTrainTest));
+			int batchSizeT=1;
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
+			Evaluation evaluation=new Evaluation();
+			while( dataSetIteratorTest.hasNext()) {
+				DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataset.getFeatures();
+				INDArray labels=dataset.getLabels();
+				INDArray predicted=model.output(feature);
+				evaluation.eval(labels, predicted); 
+				
+			}
+			System.out.println(evaluation.stats());
+			a=evaluation.stats();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
+				recordReaderTrain, 1, 9, 9);*/
+		/*
+		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
+		 * new NormalizerStandardize(); normalizer.fit(allData);
+		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
+		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
+		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
+		 */
+		/*
+		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
+		 * inMemoryStatsStorage=new InMemoryStatsStorage();
+		 * uiServer.attach(inMemoryStatsStorage);
+		 * 
+		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
+		 */
+		return a;
+	}
+	@Override
+	public String predictMiTempsDeuxProlifique() throws Exception {
+		double learningRate=0.001;
+		String a = null;
+		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.RELU)
+				.updater(new Adam(learningRate))
+				.list()
+				.layer(0,new DenseLayer.Builder()
+						  .nIn(20).nOut(2).activation(Activation.RELU).build()
+						  )
+				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
+						  .nIn(2)
+						  .nOut(2)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.POISSON)
+						  .build()
+						  )
+						  
+ 				.build();
+		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
+		model.init();
+		
+		
+		File fileTrain = null;
+		try {
+			fileTrain = new ClassPathResource("trainData2.csv").getFile();
+			
+			RecordReader recordReaderTrain =new CSVRecordReader(0);
+			recordReaderTrain.initialize(new FileSplit(fileTrain));
+			
+			int batchSize=1;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
+			int nEpocks=3;
+			for (int j=0;j<nEpocks;j++) {
+				model.fit(dataSetIteratorTrain);
+				System.out.println("------------------------");
+				
+			}
+			File fileTrainTest=new ClassPathResource("testData2.csv").getFile();
+			RecordReader recordReaderTest =new CSVRecordReader(0);
+			recordReaderTest.initialize(new FileSplit(fileTrainTest));
+			int batchSizeT=1;
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
+			Evaluation evaluation=new Evaluation();
+			while(dataSetIteratorTest.hasNext()) {
+				DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataset.getFeatures();
+				INDArray labels=dataset.getLabels();
+				INDArray predicted=model.output(feature);
+				evaluation.eval(labels, predicted); 
+				
+			}
+			System.out.println(evaluation.stats());
+			a=evaluation.stats();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
+				recordReaderTrain, 1, 9, 9);*/
+		/*
+		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
+		 * new NormalizerStandardize(); normalizer.fit(allData);
+		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
+		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
+		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
+		 */
+		/*
+		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
+		 * inMemoryStatsStorage=new InMemoryStatsStorage();
+		 * uiServer.attach(inMemoryStatsStorage);
+		 * 
+		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
+		 */
+		return a;
+	}
+	@Override
+	public String predictPlusDEuxBut() throws Exception {
+		double learningRate=0.001;
+		String a = null;
+		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
+				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
+				.weightInit(WeightInit.RELU)
+				.updater(new Adam(learningRate))
+				.list()
+				.layer(0,new DenseLayer.Builder()
+						  .nIn(12).nOut(2).activation(Activation.RELU).build()
+						  )
+				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
+						  .nIn(2)
+						  .nOut(2)
+						  .activation(Activation.SOFTPLUS)
+						  .lossFunction(LossFunction.POISSON)
+						  .build()
+						  )
+						  
+ 				.build();
+		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
+		model.init();
+		
+		
+		File fileTrain = null;
+		try {
+			fileTrain = new ClassPathResource("trainData3.csv").getFile();
+			
+			RecordReader recordReaderTrain =new CSVRecordReader(0);
+			recordReaderTrain.initialize(new FileSplit(fileTrain));
+			
+			int batchSize=1;
+			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,12,2);
+			int nEpocks=1;
+			for (int j=0;j<nEpocks;j++) {
+				model.fit(dataSetIteratorTrain);
+				System.out.println("------------------------");
+				
+			}
+			File fileTrainTest=new ClassPathResource("testData3.csv").getFile();
+			RecordReader recordReaderTest =new CSVRecordReader(0);
+			recordReaderTest.initialize(new FileSplit(fileTrainTest));
+			int batchSizeT=1;
+			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,12,2);
+			Evaluation evaluation=new Evaluation();
+			while(dataSetIteratorTest.hasNext()) {
+				DataSet dataset=dataSetIteratorTest.next();
+				INDArray feature=dataset.getFeatures();
+				INDArray labels=dataset.getLabels();
+				INDArray predicted=model.output(feature);
+				evaluation.eval(labels, predicted); 
+				
+			}
+			System.out.println(evaluation.stats());
+			a=evaluation.stats();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
+				recordReaderTrain, 1, 9, 9);*/
+		/*
+		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
+		 * new NormalizerStandardize(); normalizer.fit(allData);
+		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
+		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
+		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
+		 */
+		/*
+		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
+		 * inMemoryStatsStorage=new InMemoryStatsStorage();
+		 * uiServer.attach(inMemoryStatsStorage);
+		 * 
+		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
+		 */
+		return a;
 	}
 	
 	

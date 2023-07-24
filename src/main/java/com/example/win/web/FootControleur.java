@@ -2,6 +2,7 @@ package com.example.win.web;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,9 +81,25 @@ public class FootControleur {
 		return footMetier.predict();
 	}
 	
-	@RequestMapping(value = "/predict1",method = RequestMethod.GET)
-	public String getPrediction1() throws Exception{
-		return footMetier.predict1();
+	@RequestMapping(value = "/predictDeuxEquipeMarque",method = RequestMethod.GET)
+	public String getPredictionDeuxEquipeMarque() throws Exception{
+		return footMetier.predictDeuxEquipeMarque();
+	}
+	@RequestMapping(value = "/predictMiTempsUnProlifique",method = RequestMethod.GET)
+	public String getPredictionMt1Prolifique() throws Exception{
+		return footMetier.predictMiTempsUnProlifique();
+	}
+	@RequestMapping(value = "/predictMiTempsDeuxProlifique",method = RequestMethod.GET)
+	public String getPredictionMt2Prolifique() throws Exception{
+		return footMetier.predictMiTempsDeuxProlifique();
+	}
+	@RequestMapping(value = "/predictMatchNullMiTemps",method = RequestMethod.GET)
+	public String getPredictionMatchNullMitemps() throws Exception{
+		return footMetier.predictMAtchNullMitemps();
+	}
+	@RequestMapping(value = "/predictPlusDeuxBut",method = RequestMethod.GET)
+	public String getPredictionPlusDeuxBut() throws Exception{
+		return footMetier.predictPlusDEuxBut();
 	}
 	@RequestMapping(value = "/saveData",method = RequestMethod.GET)
 	public String savedata() {
@@ -100,7 +117,7 @@ public class FootControleur {
 		
 		return footMetier.getStatByEquipe(league,number);
 	}
-	
+	@CrossOrigin(value = "http://localhost:3000")
 	@RequestMapping(value = "/Equipe/{name}/{number}",method = RequestMethod.GET)
 	public List<MatchFoot> getEquipe(@PathVariable String name,@PathVariable int number) {
 		

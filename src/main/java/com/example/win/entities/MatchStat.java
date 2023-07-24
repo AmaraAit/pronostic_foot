@@ -27,6 +27,11 @@ public class MatchStat {
 	private String league;
 	
 	private int isDeuxEquipeMarque;
+	private int isMatchNullMiTemps;
+	private int isPlusDeuxBut;
+	private int isMiTempsUnProlifique;
+	private int isMiTempsDeuxProlifique;
+	
 	private double nbrMatchMarqueByEquipeUnADOM;
 	private double nbrMatchMarqueByEquipeUnAEXT;
 	private double nbrMatchMarqueByEquipeDeuxADOM;
@@ -35,6 +40,11 @@ public class MatchStat {
 	private double nbrMatchMarqueByEquipeUnAEXTMT;
 	private double nbrMatchMarqueByEquipeDeuxADOMMT;
 	private double nbrMatchMarqueByEquipeDeuxAEXTMT;
+	
+	private double nbrButMarqueByEquipeUn;
+	private double nbrButEncaisseByEquipeUn;
+	private double nbrButEncaisseByEquipeDeux;
+	private double nbrButMarqueByEquipeDeux;
 	
 	
 	private double nbrMatchEncaisseByEquipeUnADOM;

@@ -63,6 +63,14 @@ public interface MatchFootMetier {
 	
 	public List<MatchFoot> getM(String name, int num);
 
-	String predict1() throws Exception;
+	public String predictDeuxEquipeMarque() throws Exception;
+	
+	public String predictMAtchNullMitemps() throws Exception;
+	
+	public String predictMiTempsUnProlifique() throws Exception;
+	
+	public String predictMiTempsDeuxProlifique() throws Exception;
+	
+	public String predictPlusDEuxBut() throws Exception;
 
 }
