@@ -285,6 +285,17 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 									butEquipe1MT2=Integer.parseInt(butMt1[0]);
 									butEquipe2MT2=Integer.parseInt(butMt1[1]);
 								}
+								mf.setNameUn(equipe1);
+								mf.setNameDeux(equipe2);
+								mf.setJour(j);
+								mf.setCode(code);
+								mf.setLeague(league);
+								mf.setButEqUnMTUn(butEquipe1MT1);
+								mf.setButEqUnMTDeux(butEquipe1MT2);
+								mf.setButEqDeuxMTUn(butEquipe2MT1);
+								mf.setButEqDeuxMTDeux(butEquipe2MT2);
+								footRepository.save(mf);
+								
 						}else {
 							 e=children.get(2);
 							
@@ -293,15 +304,16 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 							butEquipe2MT1=-1;
 							butEquipe1MT2=-1;
 							butEquipe2MT2=-1;
+							m.setNameUn(equipe1);
+							m.setNameDeux(equipe2);
+							m.setJour(j);
+							m.setCode(code);
+							m.setLeague(league);
+							m.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(date));
+							abstractRepository.save(m);
+							listMatchsFoot.add(m);
 						}
-						m.setNameUn(equipe1);
-						m.setNameDeux(equipe2);
-						m.setJour(j);
-						m.setCode(code);
-						m.setLeague(league);
-						m.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(date));
-						abstractRepository.save(m);
-						listMatchsFoot.add(m);
+						
 						
 						
 						code+=1;
