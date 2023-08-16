@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.win.entities.Equipe;
 import com.example.win.entities.LeagueStats;
+import com.example.win.entities.MatchAbstract;
 import com.example.win.entities.MatchFoot;
 import com.example.win.entities.MatchStat;
 import com.example.win.metier.MatchFootMetier;
@@ -112,16 +113,35 @@ public class FootControleur {
 		return footMetier.getStat(league,number);
 	}
 	
-	@RequestMapping(value = "/getstatEquipe/{league}/{number}",method = RequestMethod.GET)
-	public Equipe getStatEquipe(@PathVariable String league,@PathVariable int number) {
+	@RequestMapping(value = "/Equipe/Statistic/{equipe}/{number}",method = RequestMethod.GET)
+	public Equipe getStatEquipe(@PathVariable String equipe,@PathVariable int number) {
 		
-		return footMetier.getStatByEquipe(league,number);
+		return footMetier.getStatByEquipe(equipe,number);
 	}
 	@CrossOrigin(value = "http://localhost:3000")
 	@RequestMapping(value = "/Equipe/{name}/{number}",method = RequestMethod.GET)
 	public List<MatchFoot> getEquipe(@PathVariable String name,@PathVariable int number) {
 		
 		return footMetier.getM(name,number);
+	}
+	
+	@CrossOrigin(value = "http://localhost:3000")
+	@RequestMapping(value = "/League/{league}",method = RequestMethod.GET)
+	public List<String> getEquipeByLeague(@PathVariable String league) {
+		
+		return footMetier.getEquipeByLeague(league);
+	}
+	@CrossOrigin(value = "http://localhost:3000")
+	@RequestMapping(value = "/setMatch",method = RequestMethod.GET)
+	public List<MatchAbstract> setMatch() throws Exception {
+		
+		return footMetier.setMatch();
+	}
+	@CrossOrigin(value = "http://localhost:3000")
+	@RequestMapping(value = "/nextMatch",method = RequestMethod.GET)
+	public List<MatchAbstract> nextMatch() throws Exception {
+		
+		return footMetier.getNextMatch();
 	}
 	
 	

@@ -38,4 +38,7 @@ public interface MatchFootRepository extends JpaRepository<MatchFoot, Long>{
 	
 	@Query("SELECT m FROM MatchFoot m WHERE m.nameUn LIKE ?1 or m.nameDeux LIKE ?1  ORDER BY id DESC")
 	List<MatchFoot> getStatByEquipe(String name);
+	
+	@Query("SELECT DISTINCT m.nameUn FROM MatchFoot m WHERE m.league LIKE ?1  ORDER BY id DESC")
+	List<String> getEquipeByLeague(String name);
 }

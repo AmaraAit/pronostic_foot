@@ -1,9 +1,11 @@
 package com.example.win.metier;
 
+import java.text.ParseException;
 import java.util.List;
 
 import com.example.win.entities.Equipe;
 import com.example.win.entities.LeagueStats;
+import com.example.win.entities.MatchAbstract;
 import com.example.win.entities.MatchFoot;
 import com.example.win.entities.MatchStat;
 
@@ -30,6 +32,10 @@ public interface MatchFootMetier {
 	public List<MatchFoot> getMatchsByName(String name);
 	
 	public List<MatchFoot> getMatchMarqueByName(String name);
+	
+	public List<MatchAbstract> getNextMatch() throws ParseException ;
+	
+	public List<MatchAbstract> setMatch() throws Exception;
 	
 	public List<MatchFoot> getMatchEncaisseByName(String name);
 
@@ -72,5 +78,7 @@ public interface MatchFootMetier {
 	public String predictMiTempsDeuxProlifique() throws Exception;
 	
 	public String predictPlusDEuxBut() throws Exception;
+	
+	public List<String> getEquipeByLeague(String name);
 
 }

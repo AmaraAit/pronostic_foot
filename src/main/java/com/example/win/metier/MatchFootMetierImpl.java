@@ -4,6 +4,8 @@ package com.example.win.metier;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,9 +37,11 @@ import org.springframework.stereotype.Service;
 import com.example.win.entities.DataMatchs;
 import com.example.win.entities.Equipe;
 import com.example.win.entities.LeagueStats;
+import com.example.win.entities.MatchAbstract;
 import com.example.win.entities.MatchFoot;
 import com.example.win.entities.MatchStat;
 import com.example.win.repository.DataMatchRepository;
+import com.example.win.repository.MatchAbstractRepository;
 import com.example.win.repository.MatchFootRepository;
 import com.example.win.repository.MatchStatRepository;
 
@@ -50,14 +54,18 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 	
 	DataMatchRepository dataMatchRepository;
 	
+	MatchAbstractRepository abstractRepository;
+	
 	
 	public MatchFootMetierImpl(MatchFootRepository footRepository, MatchStatRepository statRepository,
-			DataMatchRepository dataMatchRepository) {
+			DataMatchRepository dataMatchRepository, MatchAbstractRepository abstractRepository) {
 		
 		this.footRepository = footRepository;
 		this.statRepository = statRepository;
 		this.dataMatchRepository = dataMatchRepository;
+		this.abstractRepository = abstractRepository;
 	}
+	
 	@Override
 	public List<MatchFoot> getMatchs() throws Exception{
 		int code=1;
@@ -96,13 +104,13 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		List<MatchFoot> listMatchsFoot=new ArrayList<>();
 		int j=0;
 		String league="";
-		for (int i = 0; i < urls1.length; i++) {
+		for (int i = 0; i < urls.length; i++) {
 			league=championnat1[i];
 			j=jo[i];
-			for (String string : ann) {
+			//for (String string : ann) {
 				
 				
-				Document doc = Jsoup.connect(urls1[i]+string).get();
+				Document doc = Jsoup.connect(urls1[i]+"2013-2014.htm").get();
 				String equipe1=null;
 				Date dateMatch;
 				int butEquipe1MT1 = 0;
@@ -172,12 +180,141 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 					}
 					j+=1;
 				}
-			}
+			//}
 		}
 		
 		return listMatchsFoot;
 		
 	}
+	@Override
+	public List<MatchAbstract> setMatch() throws Exception{
+	int code=1;
+	String [] championnat= {"portugal","belgique","premier-league","liga","serie-a",
+			"bundesliga","pays-bas",//"turquie",
+			"suisse","ligue-1"};
+	
+	
+	
+	
+	
+	List<String> listlien=new ArrayList<>();
+	String[] annee= {"2012-2013.htm","2013-2014.htm","2014-2015.htm","2015-2016.htm","2016-2017.htm","2017-2018.htm","2018-2019.htm","2019-2020.htm","2020-2021.htm"};
+	
+	
+	
+	
+	String []urls= {
+			"https://www.maxifoot.fr/calendrier-portugal-",
+			"https://www.maxifoot.fr/calendrier-belgique-",
+			"https://www.maxifoot.fr/calendrier-premier-league-angleterre-",
+			"https://www.maxifoot.fr/calendrier-liga-espagne-",
+			"https://www.maxifoot.fr/calendrier-serie-a-italie-",
+			"https://www.maxifoot.fr/calendrier-bundesliga-allemagne-",
+			"https://www.maxifoot.fr/calendrier-pays-bas-",
+			//"https://www.maxifoot.fr/calendrier-turquie-",
+			"https://www.maxifoot.fr/calendrier-suisse-",
+			"https://www.maxifoot.fr/calendrier-ligue-1-france-"};
+	List<MatchAbstract> listMatchsFoot=new ArrayList<>();
+	int j=0;
+	String league="";
+	for (int i = 0; i < urls.length; i++) {
+		league=championnat[i];
+			Document doc = Jsoup.connect(urls[i]+"2023-2024.htm").get();
+			String equipe1=null;
+			Date dateMatch=null;
+			int butEquipe1MT1 = 0;
+			int butEquipe1MT2;
+			String equipe2;
+			int butEquipe2MT1;
+			int butEquipe2MT2;
+			Elements newsHeadlines = doc.select("div.cald1");
+			
+			for (Element headline : newsHeadlines.select("table.cd1")) {
+					String date="";
+					
+					for (Element headlines : headline.select("tr")) {
+						date=headline.select("tr.ch3").text();
+						List<Element> children = headlines.children();
+						
+						if(children.size()>1) {
+							MatchFoot mf=new MatchFoot();
+							MatchAbstract m=new MatchAbstract();
+							equipe1=children.get(0).text();
+							equipe2=children.get(1).text();
+							Element e=children.get(2);
+							
+							if(e.text().contains("h")) {
+								date=e.text()+date;
+								String[] ind=date.split(" ");
+								date=ind[4];
+							}else if(e.text().contains("-")) {
+								String[] ind=date.split(" ");
+								date=ind[4];
+							}else if(e.text().contains("/")) {
+								date=e.text()+"/2023";
+							}else {
+								String[] ind=date.split(" ");
+								date=ind[4];
+							}
+							
+							if(!(children.get(2).text().contains("rep") )&&(!(children.get(2).text().equals("-")))&&(children.get(2).text().contains("-") )) {
+								//System.out.println(e.text()+"///////////");
+								String urll=e.select("a").attr("abs:href");
+								String[] butMt1=null;
+								String[] butMt2=null;
+								if(urll!="") {
+									Document scoremt = Jsoup.connect(urll).get();
+									Elements sco = scoremt.select("center");
+									String res=sco.get(1).text();
+									if(!res.contains("(mi-tps:")) {
+										res="(mi-tps: 0-0)";
+									}
+									res = res.replace("(mi-tps: ","");
+									res = res.replace(")","");
+									butMt1=res.split("-");
+									butMt2=children.get(2).text().split("-");
+									butEquipe1MT1=Integer.parseInt(butMt1[0]);
+									butEquipe2MT1=Integer.parseInt(butMt1[1]);
+									butEquipe1MT2=Integer.parseInt(butMt2[0])-butEquipe1MT1;
+									butEquipe2MT2=Integer.parseInt(butMt2[1])-butEquipe2MT1;
+								}else {
+									urll=e.select("th").text();
+									butMt1=urll.split("-");
+									butEquipe1MT1=-1;
+									butEquipe2MT1=-1;
+									butEquipe1MT2=Integer.parseInt(butMt1[0]);
+									butEquipe2MT2=Integer.parseInt(butMt1[1]);
+								}
+						}else {
+							 e=children.get(2);
+							
+							
+							butEquipe1MT1=-1;
+							butEquipe2MT1=-1;
+							butEquipe1MT2=-1;
+							butEquipe2MT2=-1;
+						}
+						m.setNameUn(equipe1);
+						m.setNameDeux(equipe2);
+						m.setJour(j);
+						m.setCode(code);
+						m.setLeague(league);
+						m.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(date));
+						abstractRepository.save(m);
+						listMatchsFoot.add(m);
+						
+						
+						code+=1;
+					}
+				}
+				j+=1;
+			}
+		//}
+	}
+	
+	return listMatchsFoot;
+	
+}
 	public List<MatchFoot> getAll(){
 		List<MatchFoot> l=footRepository.findAll();
 		List<MatchFoot> lin1=new ArrayList<>();
@@ -1364,11 +1501,11 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		String a = null;
 		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
 				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.RELU_UNIFORM)
+				.weightInit(WeightInit.UNIFORM )
 				.updater(new Adam(learningRate))
 				.list()
 				.layer(0,new DenseLayer.Builder()
-						  .nIn(20).nOut(2).activation(Activation.SIGMOID).build()
+						  .nIn(20).nOut(2).activation(Activation.RELU).build()
 						  )
 				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
 						  .nIn(2)
@@ -1755,8 +1892,30 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		 */
 		return a;
 	}
-	
-	
-	
+	@Override
+	public List<String> getEquipeByLeague(String name) {
+		// TODO Auto-generated method stub
+		return footRepository.getEquipeByLeague(name);
+	}
 
+	@Override
+	public List<MatchAbstract> getNextMatch() throws ParseException{
+		List<MatchAbstract> nextMatch=new ArrayList<>();
+		int count =1;
+		Date today=new Date();
+		String n="10/07/2023";
+		
+		Date d = new SimpleDateFormat("dd/MM/yyyy").parse(n);
+		
+			for (MatchAbstract matchAbstract : abstractRepository.findAllByDate(today)) {
+				if(count > 50) {
+					break;
+				}
+				count=count+1;
+				nextMatch.add(matchAbstract);
+				
+			}
+		
+		return nextMatch;
+	}
 }
