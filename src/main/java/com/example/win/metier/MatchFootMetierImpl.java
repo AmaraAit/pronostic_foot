@@ -296,6 +296,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 								mf.setButEqDeuxMTDeux(butEquipe2MT2);
 								footRepository.save(mf);
 								
+								
 						}else {
 							 e=children.get(2);
 							
@@ -311,7 +312,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 							m.setLeague(league);
 							m.setDate(new SimpleDateFormat("dd/MM/yyyy").parse(date));
 							abstractRepository.save(m);
-							listMatchsFoot.add(m);
+							
 						}
 						
 						
@@ -323,7 +324,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 			}
 		//}
 	}
-	
+	listMatchsFoot=getNextMatch();
 	return listMatchsFoot;
 	
 }
