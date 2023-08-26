@@ -71,13 +71,7 @@ public interface MatchFootMetier {
 
 	public String predictDeuxEquipeMarque() throws Exception;
 	
-	public String predictMAtchNullMitemps() throws Exception;
 	
-	public String predictMiTempsUnProlifique() throws Exception;
-	
-	public String predictMiTempsDeuxProlifique() throws Exception;
-	
-	public String predictPlusDEuxBut() throws Exception;
 	
 	public List<String> getEquipeByLeague(String name);
 

@@ -86,22 +86,7 @@ public class FootControleur {
 	public String getPredictionDeuxEquipeMarque() throws Exception{
 		return footMetier.predictDeuxEquipeMarque();
 	}
-	@RequestMapping(value = "/predictMiTempsUnProlifique",method = RequestMethod.GET)
-	public String getPredictionMt1Prolifique() throws Exception{
-		return footMetier.predictMiTempsUnProlifique();
-	}
-	@RequestMapping(value = "/predictMiTempsDeuxProlifique",method = RequestMethod.GET)
-	public String getPredictionMt2Prolifique() throws Exception{
-		return footMetier.predictMiTempsDeuxProlifique();
-	}
-	@RequestMapping(value = "/predictMatchNullMiTemps",method = RequestMethod.GET)
-	public String getPredictionMatchNullMitemps() throws Exception{
-		return footMetier.predictMAtchNullMitemps();
-	}
-	@RequestMapping(value = "/predictPlusDeuxBut",method = RequestMethod.GET)
-	public String getPredictionPlusDeuxBut() throws Exception{
-		return footMetier.predictPlusDEuxBut();
-	}
+	
 	@RequestMapping(value = "/saveData",method = RequestMethod.GET)
 	public String savedata() {
 		footMetier.saveData();

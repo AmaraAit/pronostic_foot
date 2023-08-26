@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +22,7 @@ import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.nn.weights.WeightInit;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -547,7 +550,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		List<MatchFoot> listein=footRepository.findAllLastMatchByNameUn(name, code);
 		List<MatchFoot> listeout=footRepository.findAllLastMatchByNameDeux(name, code);
 		List<MatchFoot> l=new ArrayList<>();
-		for (int i = 0; i < 5; i++) {
+		for (int i = 0; i < 7; i++) {
 			l.add(listein.get(i));
 			l.add(listeout.get(i));
 		}
@@ -1589,322 +1592,7 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 
 	}
 	
-	@Override
-	public String predictMAtchNullMitemps() throws Exception {
-		double learningRate=0.001;
-		String a = null;
-		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.RELU)
-				.updater(new Adam(learningRate))
-				.list()
-				.layer(0,new DenseLayer.Builder()
-						  .nIn(20).nOut(2).activation(Activation.RELU).build()
-						  )
-				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
-						  .nIn(2)
-						  .nOut(2)
-						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.POISSON)
-						  .build()
-						  )
-						  
- 				.build();
-		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
-		model.init();
-		
-		
-		File fileTrain = null;
-		try {
-			fileTrain = new ClassPathResource("trainData1.csv").getFile();
-			
-			RecordReader recordReaderTrain =new CSVRecordReader(0);
-			recordReaderTrain.initialize(new FileSplit(fileTrain));
-			
-			int batchSize=1;
-			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
-			int nEpocks=3;
-			for (int j=0;j<nEpocks;j++) {
-				model.fit(dataSetIteratorTrain);
-				System.out.println("------------------------");
-				
-			}
-			File fileTrainTest=new ClassPathResource("testData1.csv").getFile();
-			RecordReader recordReaderTest =new CSVRecordReader(0);
-			recordReaderTest.initialize(new FileSplit(fileTrainTest));
-			int batchSizeT=1;
-			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
-			Evaluation evaluation=new Evaluation();
-			while(dataSetIteratorTest.hasNext()) {
-				DataSet dataset=dataSetIteratorTest.next();
-				INDArray feature=dataset.getFeatures();
-				INDArray labels=dataset.getLabels();
-				INDArray predicted=model.output(feature);
-				evaluation.eval(labels, predicted); 
-				
-			}
-			System.out.println(evaluation.stats());
-			a=evaluation.stats();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
-				recordReaderTrain, 1, 9, 9);*/
-		/*
-		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
-		 * new NormalizerStandardize(); normalizer.fit(allData);
-		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
-		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
-		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
-		 */
-		/*
-		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
-		 * inMemoryStatsStorage=new InMemoryStatsStorage();
-		 * uiServer.attach(inMemoryStatsStorage);
-		 * 
-		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
-		 */
-		return a;
-	}
-	@Override
-	public String predictMiTempsUnProlifique() throws Exception {
-		double learningRate=0.001;
-		String a = null;
-		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.RELU)
-				.updater(new Adam(learningRate))
-				.list()
-				.layer(0,new DenseLayer.Builder()
-						  .nIn(20).nOut(2).activation(Activation.RELU).build()
-						  )
-				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
-						  .nIn(2)
-						  .nOut(2)
-						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.POISSON)
-						  .build()
-						  )
-						  
- 				.build();
-		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
-		model.init();
-		
-		
-		File fileTrain = null;
-		try {
-			fileTrain = new ClassPathResource("trainData4.csv").getFile();
-			
-			RecordReader recordReaderTrain =new CSVRecordReader(0);
-			recordReaderTrain.initialize(new FileSplit(fileTrain));
-			
-			int batchSize=1;
-			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
-			int nEpocks=3;
-			for (int j=0;j<nEpocks;j++) {
-				model.fit(dataSetIteratorTrain);
-				System.out.println("------------------------");
-				
-			}
-			File fileTrainTest=new ClassPathResource("testData4.csv").getFile();
-			RecordReader recordReaderTest =new CSVRecordReader(0);
-			recordReaderTest.initialize(new FileSplit(fileTrainTest));
-			int batchSizeT=1;
-			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
-			Evaluation evaluation=new Evaluation();
-			while( dataSetIteratorTest.hasNext()) {
-				DataSet dataset=dataSetIteratorTest.next();
-				INDArray feature=dataset.getFeatures();
-				INDArray labels=dataset.getLabels();
-				INDArray predicted=model.output(feature);
-				evaluation.eval(labels, predicted); 
-				
-			}
-			System.out.println(evaluation.stats());
-			a=evaluation.stats();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
-				recordReaderTrain, 1, 9, 9);*/
-		/*
-		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
-		 * new NormalizerStandardize(); normalizer.fit(allData);
-		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
-		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
-		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
-		 */
-		/*
-		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
-		 * inMemoryStatsStorage=new InMemoryStatsStorage();
-		 * uiServer.attach(inMemoryStatsStorage);
-		 * 
-		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
-		 */
-		return a;
-	}
-	@Override
-	public String predictMiTempsDeuxProlifique() throws Exception {
-		double learningRate=0.001;
-		String a = null;
-		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.RELU)
-				.updater(new Adam(learningRate))
-				.list()
-				.layer(0,new DenseLayer.Builder()
-						  .nIn(20).nOut(2).activation(Activation.RELU).build()
-						  )
-				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
-						  .nIn(2)
-						  .nOut(2)
-						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.POISSON)
-						  .build()
-						  )
-						  
- 				.build();
-		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
-		model.init();
-		
-		
-		File fileTrain = null;
-		try {
-			fileTrain = new ClassPathResource("trainData2.csv").getFile();
-			
-			RecordReader recordReaderTrain =new CSVRecordReader(0);
-			recordReaderTrain.initialize(new FileSplit(fileTrain));
-			
-			int batchSize=1;
-			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,20,2);
-			int nEpocks=3;
-			for (int j=0;j<nEpocks;j++) {
-				model.fit(dataSetIteratorTrain);
-				System.out.println("------------------------");
-				
-			}
-			File fileTrainTest=new ClassPathResource("testData2.csv").getFile();
-			RecordReader recordReaderTest =new CSVRecordReader(0);
-			recordReaderTest.initialize(new FileSplit(fileTrainTest));
-			int batchSizeT=1;
-			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,20,2);
-			Evaluation evaluation=new Evaluation();
-			while(dataSetIteratorTest.hasNext()) {
-				DataSet dataset=dataSetIteratorTest.next();
-				INDArray feature=dataset.getFeatures();
-				INDArray labels=dataset.getLabels();
-				INDArray predicted=model.output(feature);
-				evaluation.eval(labels, predicted); 
-				
-			}
-			System.out.println(evaluation.stats());
-			a=evaluation.stats();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
-				recordReaderTrain, 1, 9, 9);*/
-		/*
-		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
-		 * new NormalizerStandardize(); normalizer.fit(allData);
-		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
-		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
-		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
-		 */
-		/*
-		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
-		 * inMemoryStatsStorage=new InMemoryStatsStorage();
-		 * uiServer.attach(inMemoryStatsStorage);
-		 * 
-		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
-		 */
-		return a;
-	}
-	@Override
-	public String predictPlusDEuxBut() throws Exception {
-		double learningRate=0.001;
-		String a = null;
-		MultiLayerConfiguration configuration= new NeuralNetConfiguration.Builder()
-				.optimizationAlgo(OptimizationAlgorithm.STOCHASTIC_GRADIENT_DESCENT)
-				.weightInit(WeightInit.RELU)
-				.updater(new Adam(learningRate))
-				.list()
-				.layer(0,new DenseLayer.Builder()
-						  .nIn(12).nOut(2).activation(Activation.RELU).build()
-						  )
-				.layer(1,new org.deeplearning4j.nn.conf.layers.OutputLayer.Builder()
-						  .nIn(2)
-						  .nOut(2)
-						  .activation(Activation.SOFTPLUS)
-						  .lossFunction(LossFunction.POISSON)
-						  .build()
-						  )
-						  
- 				.build();
-		MultiLayerNetwork model=new MultiLayerNetwork(configuration);
-		model.init();
-		
-		
-		File fileTrain = null;
-		try {
-			fileTrain = new ClassPathResource("trainData3.csv").getFile();
-			
-			RecordReader recordReaderTrain =new CSVRecordReader(0);
-			recordReaderTrain.initialize(new FileSplit(fileTrain));
-			
-			int batchSize=1;
-			DataSetIterator dataSetIteratorTrain=new RecordReaderDataSetIterator(recordReaderTrain, batchSize,12,2);
-			int nEpocks=1;
-			for (int j=0;j<nEpocks;j++) {
-				model.fit(dataSetIteratorTrain);
-				System.out.println("------------------------");
-				
-			}
-			File fileTrainTest=new ClassPathResource("testData3.csv").getFile();
-			RecordReader recordReaderTest =new CSVRecordReader(0);
-			recordReaderTest.initialize(new FileSplit(fileTrainTest));
-			int batchSizeT=1;
-			DataSetIterator dataSetIteratorTest=new RecordReaderDataSetIterator(recordReaderTest, batchSizeT,12,2);
-			Evaluation evaluation=new Evaluation();
-			while(dataSetIteratorTest.hasNext()) {
-				DataSet dataset=dataSetIteratorTest.next();
-				INDArray feature=dataset.getFeatures();
-				INDArray labels=dataset.getLabels();
-				INDArray predicted=model.output(feature);
-				evaluation.eval(labels, predicted); 
-				
-			}
-			System.out.println(evaluation.stats());
-			a=evaluation.stats();
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		/*DataSetIterator iterator = new RecordReaderDataSetIterator(
-				recordReaderTrain, 1, 9, 9);*/
-		/*
-		 * DataSet allData = dataSetIteratorTrain.next(); DataNormalization normalizer =
-		 * new NormalizerStandardize(); normalizer.fit(allData);
-		 * normalizer.transform(allData); SplitTestAndTrain testAndTrain =
-		 * allData.splitTestAndTrain(0.65); DataSet trainingData =
-		 * testAndTrain.getTrain(); DataSet testData = testAndTrain.getTest();
-		 */
-		/*
-		 * UIServer uiServer=UIServer.getInstance(); InMemoryStatsStorage
-		 * inMemoryStatsStorage=new InMemoryStatsStorage();
-		 * uiServer.attach(inMemoryStatsStorage);
-		 * 
-		 * model.setListeners(new StatsListener(inMemoryStatsStorage));
-		 */
-		return a;
-	}
+	
 	@Override
 	public List<String> getEquipeByLeague(String name) {
 		// TODO Auto-generated method stub
@@ -1919,13 +1607,62 @@ public class MatchFootMetierImpl implements MatchFootMetier{
 		String n="10/07/2023";
 		
 		Date d = new SimpleDateFormat("dd/MM/yyyy").parse(n);
-		
-			for (MatchAbstract matchAbstract : abstractRepository.findAllByDate(today)) {
-				if(count > 50) {
-					break;
+		LocalDateTime ldt = LocalDateTime.ofInstant(today.toInstant(), ZoneId.systemDefault());
+		ldt=ldt.minusDays(5);
+		LocalDateTime ldt1=ldt.plusDays(10);
+		Date out = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+		Date out1 = Date.from(ldt1.atZone(ZoneId.systemDefault()).toInstant());
+		System.out.println(out);
+			for (MatchAbstract matchAbstract : abstractRepository.findAllByDate(out)) {
+				matchAbstract.setComment("");
+				if(matchAbstract.getDate().before(out1)) {
+					Equipe e1=getStatByEquipe(matchAbstract.getNameUn(), 10);
+					Equipe e2=getStatByEquipe(matchAbstract.getNameDeux(), 10);
+					
+					if(e1.getNumberMatchDeuxEquipeMarque()>6 && e2.getNumberMatchDeuxEquipeMarque()>6) {
+						matchAbstract.setComment(matchAbstract.getComment()+"BUT POUR LES 2");
+						boolean exist=false;
+						for (MatchAbstract m : nextMatch) {
+							if(m.getNameUn().contains(matchAbstract.getNameUn()) && m.getNameDeux().contains(matchAbstract.getNameDeux())&& m.getJour()==matchAbstract.getJour()) {
+								exist=true;
+							}
+						}
+						if(exist==false) {
+							nextMatch.add(matchAbstract);
+						}
+					}
+					if(e1.getNumberMatchPlusDeuxBut()>7 && e2.getNumberMatchPlusDeuxBut()>7) {
+						matchAbstract.setComment(matchAbstract.getComment()+"+ 2.5");
+						boolean exist=false;
+						for (MatchAbstract m : nextMatch) {
+							if(m.getNameUn().contains(matchAbstract.getNameUn()) && m.getNameDeux().contains(matchAbstract.getNameDeux())&& m.getJour()==matchAbstract.getJour()) {
+								exist=true;
+							}
+						}
+						if(exist==false) {
+							nextMatch.add(matchAbstract);
+						}
+					}
+					
+					if(e1.getNumberMatchPlusDeuxBut()>7 && e2.getNumberMatchPlusDeuxBut()>7) {
+						matchAbstract.setComment(matchAbstract.getComment()+"+ 2.5");
+						boolean exist=false;
+						for (MatchAbstract m : nextMatch) {
+							if(m.getNameUn().contains(matchAbstract.getNameUn()) && m.getNameDeux().contains(matchAbstract.getNameDeux())&& m.getJour()==matchAbstract.getJour()) {
+								exist=true;
+							}
+						}
+						if(exist==false) {
+							nextMatch.add(matchAbstract);
+						}
+					}
+					 
+					
+					
+					count=count+1;
 				}
-				count=count+1;
-				nextMatch.add(matchAbstract);
+				
+				
 				
 			}
 		
